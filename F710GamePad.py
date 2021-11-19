@@ -37,7 +37,7 @@ class F710GamePad:
     def GetValues(self,os):
 
         pygame.init()
-        self.count =1
+        self.count += 1
 
         # numbering is different in Windows10 and Ubuntu
         if os == 'windows': axis0, axis1, axis2, axis3, axis4, axis5 = 0, 1, 2, 3, 4, 5
