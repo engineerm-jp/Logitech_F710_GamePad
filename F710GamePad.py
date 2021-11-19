@@ -41,7 +41,7 @@ class F710GamePad:
 
         # numbering is different in Windows10 and Ubuntu
         if os == 'windows': axis0, axis1, axis2, axis3, axis4, axis5 = 0, 1, 2, 3, 4, 5
-        else: axis2, axis3, axis4, axis5 = 0, 1, 3, 4, 2, 5
+        else: axis0, axis1, axis2, axis3, axis4, axis5 = 0, 1, 3, 4, 2, 5
 
         while True:
             sleep(1/self.freq)
