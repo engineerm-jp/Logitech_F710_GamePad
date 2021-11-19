@@ -3,18 +3,20 @@ from pygame.locals import *
 from time import sleep
 
 class F710GamePad:
-
+    
     def __init__(self):
+
         try:
             pygame.joystick.init()
             self.joystick0 = pygame.joystick.Joystick(0)
             self.joystick0.init()
             pygame.init()
             print("Gamepad Detected")
+
         except pygame.error:
             print("Gamepad Not Found")
             return
-        
+
         # default parameters
         self.x0, self.y0 = 0.0, 0.0 # left joystick
         self.x1, self.y1 = 0.0, 0.0 # right joystick
@@ -28,71 +30,76 @@ class F710GamePad:
         self.joyR_max = 100
         self.trigL_max = 100
         self.trigR_max = 100
+
         self.release_after = 2  # time to automatically release pressed buttons
         self.freq = 20          # sampling frequency
-        
+        self.round_output = 0
         self.count = 0
+        self.os = 'windows' # 
 
     # obtain all input values from the gamepad
-    def GetValues(self,os):
-
+    def GetValues(self):
         pygame.init()
         self.count += 1
-
         # numbering is different in Windows10 and Ubuntu
-        if os == 'windows': axis0, axis1, axis2, axis3, axis4, axis5 = 0, 1, 2, 3, 4, 5
+        if self.os.lower() == 'windows': axis0, axis1, axis2, axis3, axis4, axis5 = 0, 1, 2, 3, 4, 5
         else: axis0, axis1, axis2, axis3, axis4, axis5 = 0, 1, 3, 4, 2, 5
 
-        while True:
-            sleep(1/self.freq)
-            eventlist = pygame.event.get()
-            
-            for event in eventlist:
-                if event.type == pygame.locals.JOYAXISMOTION and (event.axis == axis0 or event.axis == axis1):
-                    self.x0, self.y0 = round(self.joystick0.get_axis(axis0)*self.joyL_max), -1*round(self.joystick0.get_axis(axis1)*self.joyL_max)
+        sleep(1/self.freq)
+        eventlist = pygame.event.get()
 
-                if event.type == pygame.locals.JOYAXISMOTION and (event.axis == axis2 or event.axis == axis3):
-                    self.x1, self.y1 = round(self.joystick0.get_axis(axis2)*self.joyR_max), -1*round(self.joystick0.get_axis(axis3)*self.joyR_max)
+        for event in eventlist:
+            if event.type == pygame.locals.JOYAXISMOTION and (event.axis == axis0 or event.axis == axis1):
+                self.x0, self.y0 = round(self.joystick0.get_axis(axis0)*self.joyL_max,self.round_output), -1*round(self.joystick0.get_axis(axis1)*self.joyL_max,self.round_output)
 
-                if event.type == pygame.locals.JOYAXISMOTION and (event.axis == axis4):
-                    self.triggerL = round((self.joystick0.get_axis(axis4)+1)*self.trigL_max/2) 
+            if event.type == pygame.locals.JOYAXISMOTION and (event.axis == axis2 or event.axis == axis3):
+                self.x1, self.y1 = round(self.joystick0.get_axis(axis2)*self.joyR_max,self.round_output), -1*round(self.joystick0.get_axis(axis3)*self.joyR_max,self.round_output)
 
-                if event.type == pygame.locals.JOYAXISMOTION and (event.axis == axis5):
-                    self.triggerR = round((self.joystick0.get_axis(axis5)+1)*self.trigR_max/2) 
+            if event.type == pygame.locals.JOYAXISMOTION and (event.axis == axis4):
+                self.triggerL = round((self.joystick0.get_axis(axis4)+1)*self.trigL_max/2,self.round_output) 
 
-                if event.type == pygame.locals.JOYHATMOTION:
-                    self.hat = self.joystick0.get_hat(0)
+            if event.type == pygame.locals.JOYAXISMOTION and (event.axis == axis5):
+                self.triggerR = round((self.joystick0.get_axis(axis5)+1)*self.trigR_max/2,self.round_output) 
 
-                if event.type == pygame.locals.JOYBUTTONDOWN:
-                    if event.button not in self.button: self.button.append(event.button)
+            if event.type == pygame.locals.JOYHATMOTION:
+                self.hat = self.joystick0.get_hat(0)
 
-                if event.type == pygame.locals.JOYBUTTONUP: 
-                    try: self.button.remove(event.button)
-                    except: pass
+            if event.type == pygame.locals.JOYBUTTONDOWN:
+                if event.button not in self.button: self.button.append(event.button)
 
-            output = self.x0,self.y0,self.x1,self.y1,self.triggerL,self.triggerR,self.hat,self.button
-            pygame.event.clear()
+            if event.type == pygame.locals.JOYBUTTONUP: 
+                try: self.button.remove(event.button)
+                except: pass
 
-            if self.count > self.freq*self.release_after: 
-                self.button = [] # release buttons after a while
-                self.count = 0
-            return output
+        output = self.x0,self.y0,self.x1,self.y1,self.triggerL,self.triggerR,self.hat,self.button
+
+        pygame.event.clear()
+        if self.count > self.freq*self.release_after: 
+            self.button = [] # release buttons after a while
+            self.count = 0
+        return output
+
 
     # - get values from the specified input method/s such as left/right joystick, triggers, and buttons
     # - to obtain inputs, simply set desired input parameters to 1 (i.e. joyL=1 to obtain values from left joystick)
     # - the sampling frequency can be changed with freq
     # output format: [[left joystick],[righ joystick],left trigger, right trigger, [hat], [buttons]]
     def GetInput(self,joyL=0,joyR=0,trigL=0,trigR=0,hat=0,buttons=0,
-              freq=20,joyL_max=100,joyR_max=100,trigL_max=100,trigR_max=100,os='windows',release_after=2):
+              joyL_max=100,joyR_max=100,trigL_max=100,trigR_max=100,
+              freq=20,os='windows',release_after=2,round_output=0):
 
-        self.freq = freq
+        # default range(+/-) of joystick reading
         self.joyL_max = joyL_max
         self.joyR_max = joyR_max
         self.trigL_max = trigL_max
         self.trigR_max = trigR_max
 
-        inputs = self.GetValues(os)     
+        self.freq = freq    # sampling frequency
+        self.release_after = release_after  # automatic release time of buttons in seconds
+        self.round_output = round_output    # rounding of the output
+        
         output = []
+        inputs = self.GetValues() 
 
         if joyL: output.append(list(inputs[0:2]))
         if joyR: output.append(list(inputs[2:4]))
@@ -104,14 +111,12 @@ class F710GamePad:
         return output
 
 
-# example of usage
 
+# example of usage
 if __name__ == '__main__':
-    
+
     gamepad = F710GamePad()
     while True:
-        values = gamepad.GetInput(joyL=1,joyR=1,trigL=1,trigR=1,buttons=1,hat=1,joyL_max=100,os='windows')
-        print(values)
-
-
-
+        values = gamepad.GetInput(joyL=1,joyR=1,buttons=1,round_output=3)
+        # values = gamepad.GetInput(joyL=1,joyR=1,trigL=1,trigR=1,buttons=1,hat=1,joyL_max=100,os='windows')
+        print("x0 = %4.3f y0 = %4.3f x1 = %4.3f y1 = %4.3f " % (values[0][0], values[0][1], values[1][0],values[1][1]))
