@@ -34,7 +34,7 @@ class F710GamePad:
         self.count = 0
 
     # obtain all input values from the gamepad
-    def GetInput(self,os):
+    def GetValues(self,os):
 
         pygame.init()
         self.count =1
@@ -82,7 +82,7 @@ class F710GamePad:
     # - to obtain inputs, simply set desired input parameters to 1 (i.e. joyL=1 to obtain values from left joystick)
     # - the sampling frequency can be changed with freq
     # output format: [[left joystick],[righ joystick],left trigger, right trigger, [hat], [buttons]]
-    def Input(self,joyL=0,joyR=0,trigL=0,trigR=0,hat=0,buttons=0,
+    def GetInput(self,joyL=0,joyR=0,trigL=0,trigR=0,hat=0,buttons=0,
               freq=20,joyL_max=100,joyR_max=100,trigL_max=100,trigR_max=100,os='windows',release_after=2):
 
         self.freq = freq
@@ -91,7 +91,7 @@ class F710GamePad:
         self.trigL_max = trigL_max
         self.trigR_max = trigR_max
 
-        inputs = self.GetInput(os)     
+        inputs = self.GetValues(os)     
         output = []
 
         if joyL: output.append(list(inputs[0:2]))
@@ -110,7 +110,7 @@ if __name__ == '__main__':
     
     gamepad = F710GamePad()
     while True:
-        values = gamepad.Input(joyL=1,joyR=1,trigL=1,trigR=1,buttons=1,hat=1,joyL_max=100,os='windows')
+        values = gamepad.GetInput(joyL=1,joyR=1,trigL=1,trigR=1,buttons=1,hat=1,joyL_max=100,os='windows')
         print(values)
 
 
