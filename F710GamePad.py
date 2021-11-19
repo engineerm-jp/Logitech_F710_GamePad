@@ -117,6 +117,9 @@ if __name__ == '__main__':
 
     gamepad = F710GamePad()
     while True:
-        values = gamepad.GetInput(joyL=1,joyR=1,buttons=1,round_output=3)
-        # values = gamepad.GetInput(joyL=1,joyR=1,trigL=1,trigR=1,buttons=1,hat=1,joyL_max=100,os='windows')
-        print("x0 = %4.3f y0 = %4.3f x1 = %4.3f y1 = %4.3f " % (values[0][0], values[0][1], values[1][0],values[1][1]))
+        
+        sleep(0.1)
+        # values = gamepad.GetInput(joyL=1,joyR=1,buttons=1,round_output=3)
+        values = gamepad.GetInput(joyL=1,joyR=1,trigL=1,trigR=1,buttons=1,hat=1,joyL_max=100,os='windows')
+        # print("x0 = %4.3f y0 = %4.3f x1 = %4.3f y1 = %4.3f " % (values[0][0], values[0][1], values[1][0],values[1][1]))
+        print(values)
