@@ -10,6 +10,7 @@ Dependencies: PyGame
 
 To obtain input values from any combination of the input methods (e.g. left/right joysticks, buttons, etc.),
 simply set the input parameters to 1.
+
 Optional: The other input parameters allows you to specify the sampling frequency, the range of joysticks, and
 the time to automatically release of buttons in seconds. 
 
